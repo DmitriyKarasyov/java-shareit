@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemDto;
+import ru.practicum.shareit.item.model.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -19,6 +19,7 @@ public class ItemController {
 
     private final ItemService service;
     private final ItemMapper mapper;
+    private static final String HEADER = "X-Sharer-User-Id";
 
     @Autowired
     public ItemController(ItemService service, ItemMapper mapper) {
@@ -27,14 +28,14 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto addItem(@RequestHeader(name = "X-Sharer-User-Id") Integer userId,
+    public ItemDto addItem(@RequestHeader(name = HEADER) Integer userId,
                            @RequestBody @Valid ItemDto itemDto) {
         Item item = mapper.toItem(itemDto, userId, null);
         return mapper.toItemDto(service.addItem(item));
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestHeader(name = "X-Sharer-User-Id") Integer userId,
+    public ItemDto updateItem(@RequestHeader(name = HEADER) Integer userId,
                               @PathVariable Integer itemId,
                               @RequestBody ItemDto itemDto) {
         itemDto.setId(itemId);
@@ -48,7 +49,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getAllUserItems(@RequestHeader(name = "X-Sharer-User-Id") Integer userId) {
+    public List<ItemDto> getAllUserItems(@RequestHeader(name = HEADER) Integer userId) {
         return mapper.toItemDtoList(service.getAllUserItems(userId));
     }
 

@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.mapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.model.ItemDto;
+import ru.practicum.shareit.item.model.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.service.RequestService;
 import ru.practicum.shareit.user.service.UserService;
