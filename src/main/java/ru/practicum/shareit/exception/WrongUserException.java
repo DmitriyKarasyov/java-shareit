@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class WrongUserException extends RuntimeException {
-    private final Integer id;
+    private final Integer wrongOwnerId;
 
     @Override
     public String getMessage() {
-        return String.format("Данная вещь не размещалась пользователем с id = %d", id);
+        return String.format("Данная вещь не размещалась пользователем с id = %d", wrongOwnerId);
     }
 }
