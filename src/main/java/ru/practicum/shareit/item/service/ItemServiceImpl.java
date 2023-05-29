@@ -53,7 +53,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public Item updateItem(Item item) {
         Item savedItem = itemRepository.getReferenceById(item.getId());
-        if (savedItem.getOwner().getId() != item.getOwner().getId()) {
+        if (!Objects.equals(savedItem.getOwner().getId(), item.getOwner().getId())) {
             throw new WrongUserException(item.getOwner().getId());
         }
         if (item.getName() != null) {
