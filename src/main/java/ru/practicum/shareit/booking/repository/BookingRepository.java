@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.status.BookingStatus;
+import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,4 +46,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
                                                                                 List<BookingStatus> suitableStatuses);
 
     Boolean existsByBooker_IdAndItem_IdAndStartBefore(Integer bookerId, Integer itemId, LocalDateTime dateTime);
+
+    List<Booking> findByItemIn(List<Item> items);
 }
