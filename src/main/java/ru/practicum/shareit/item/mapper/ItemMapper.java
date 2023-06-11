@@ -6,6 +6,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.RequestService;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -18,12 +19,15 @@ public class ItemMapper {
     private final UserService userService;
     private final RequestService requestService;
     private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     @Autowired
-    public ItemMapper(UserService userService, RequestService requestService, CommentRepository commentRepository) {
+    public ItemMapper(UserService userService, RequestService requestService, CommentRepository commentRepository,
+                      CommentMapper commentMapper) {
         this.userService = userService;
         this.requestService = requestService;
         this.commentRepository = commentRepository;
+        this.commentMapper = commentMapper;
     }
 
     public ItemDto toItemDto(Item item) {
@@ -36,15 +40,17 @@ public class ItemMapper {
         );
     }
 
-    public Item toItem(ItemDto itemDto, Integer userId, Integer requestId) {
-        return new Item(
-                itemDto.getId(),
-                itemDto.getName(),
-                itemDto.getDescription(),
-                itemDto.getAvailable(),
-                userService.getUserById(userId),
-                requestId != null ? requestService.getRequestById(requestId) : null
-        );
+    public Item toItem(ItemDto itemDto, Integer userId) {
+        ItemRequest request =
+                itemDto.getRequestId() == null ? null : requestService.getRequestById(userId, itemDto.getRequestId());
+        return Item.builder()
+                .id(itemDto.getId())
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .available(itemDto.getAvailable())
+                .owner(userService.getUserById(userId))
+                .request(request)
+                .build();
     }
 
     public List<ItemDto> toItemDtoList(List<Item> itemList) {
@@ -64,7 +70,7 @@ public class ItemMapper {
                 .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
                 .lastBooking(null)
                 .nextBooking(null)
-                .comments(CommentMapper.toCommentDto(commentRepository.findByItem_IdOrderByCreatedDesc(item.getId())))
+                .comments(commentMapper.toCommentDto(commentRepository.findByItem_IdOrderByCreatedDesc(item.getId())))
                 .build();
     }
 

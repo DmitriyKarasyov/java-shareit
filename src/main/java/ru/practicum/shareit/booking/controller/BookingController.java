@@ -6,6 +6,7 @@ import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.common.RequestParser;
 import ru.practicum.shareit.item.mapper.StateMapper;
 
 import javax.validation.Valid;
@@ -46,13 +47,19 @@ public class BookingController {
 
     @GetMapping
     public List<Booking> getUserBookingsByState(@RequestHeader(name = HEADER) Integer bookerId,
-                                                @RequestParam(defaultValue = "ALL") String state) {
-        return service.getUserBookingsByState(bookerId, StateMapper.toBookingState(state));
+                                                @RequestParam(defaultValue = "ALL") String state,
+                                                @RequestParam(required = false) Integer from,
+                                                @RequestParam(required = false) Integer size) {
+        return service.getUserBookingsByState(bookerId, StateMapper.toBookingState(state),
+                RequestParser.makePageable(from, size));
     }
 
     @GetMapping("/owner")
     public List<Booking> getOwnerBookingsByState(@RequestHeader(name = HEADER) Integer ownerId,
-                                                 @RequestParam(defaultValue = "ALL") String state) {
-        return service.getOwnerBookingsByState(ownerId, StateMapper.toBookingState(state));
+                                                 @RequestParam(defaultValue = "ALL") String state,
+                                                 @RequestParam(required = false) Integer from,
+                                                 @RequestParam(required = false) Integer size) {
+        return service.getOwnerBookingsByState(ownerId, StateMapper.toBookingState(state),
+                RequestParser.makePageable(from, size));
     }
 }

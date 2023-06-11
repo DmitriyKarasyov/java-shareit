@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingInItemDto;
@@ -94,9 +95,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public List<ItemWithBookingsDto> getAllUserItems(Integer userId) {
+    public List<ItemWithBookingsDto> getAllUserItems(Integer userId, Pageable pageable) {
         List<ItemWithBookingsDto> itemWithBookingsDtoList = new ArrayList<>();
-        List<Item> items = itemRepository.findByOwnerIdOrderById(userId);
+        List<Item> items = itemRepository.findByOwnerIdOrderById(userId, pageable);
         List<Booking> userBookings = bookingRepository.findByItemIn(items);
         Map<Item, List<Booking>> bookingsByItems = sortBookings(userBookings);
         for (Item item : items) {
@@ -112,11 +113,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public List<Item> findItems(String text) {
+    public List<Item> findItems(String text, Pageable pageable) {
         if (text == null || text.isBlank()) {
             return new ArrayList<>();
         }
-        return itemRepository.search(text);
+        return itemRepository.search(text, pageable);
     }
 
     @Override

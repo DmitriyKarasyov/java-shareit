@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.common.RequestParser;
 import ru.practicum.shareit.item.dto.CommentCreationDto;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -36,7 +37,7 @@ public class ItemController {
     @PostMapping
     public ItemDto addItem(@RequestHeader(name = HEADER) Integer userId,
                            @RequestBody @Valid ItemDto itemDto) {
-        Item item = itemMapper.toItem(itemDto, userId, null);
+        Item item = itemMapper.toItem(itemDto, userId);
         return itemMapper.toItemDto(service.addItem(item));
     }
 
@@ -45,7 +46,7 @@ public class ItemController {
                               @PathVariable Integer itemId,
                               @RequestBody ItemDto itemDto) {
         itemDto.setId(itemId);
-        Item item = itemMapper.toItem(itemDto, userId, null);
+        Item item = itemMapper.toItem(itemDto, userId);
         return itemMapper.toItemDto(service.updateItem(item));
     }
 
@@ -56,20 +57,24 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemWithBookingsDto> getAllUserItems(@RequestHeader(name = HEADER) Integer userId) {
-        return service.getAllUserItems(userId);
+    public List<ItemWithBookingsDto> getAllUserItems(@RequestHeader(name = HEADER) Integer userId,
+                                                     @RequestParam(required = false) Integer from,
+                                                     @RequestParam(required = false) Integer size) {
+        return service.getAllUserItems(userId, RequestParser.makePageable(from, size));
     }
 
     @GetMapping("/search")
-    public List<ItemDto> findItems(@RequestParam String text) {
-        return itemMapper.toItemDtoList(service.findItems(text));
+    public List<ItemDto> findItems(@RequestParam String text,
+                                   @RequestParam(required = false) Integer from,
+                                   @RequestParam(required = false) Integer size) {
+        return itemMapper.toItemDtoList(service.findItems(text, RequestParser.makePageable(from, size)));
     }
 
     @PostMapping("/{itemId}/comment")
     public CommentDto addComment(@PathVariable Integer itemId,
                                  @RequestBody @Valid CommentCreationDto commentCreationDto,
                                  @RequestHeader(name = HEADER) Integer authorId) {
-        return CommentMapper
+        return commentMapper
                 .toCommentDto(service.addComment(commentMapper.toComment(commentCreationDto, authorId, itemId)));
     }
 }
