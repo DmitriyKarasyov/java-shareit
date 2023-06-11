@@ -77,7 +77,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getUserByIdTest() throws Exception{
+    public void getUserByIdTest() throws Exception {
         when(userService.getUserById(1)).thenReturn(user);
         when(userMapper.toUser(userDto)).thenReturn(user);
         when(userMapper.toUserDto(user)).thenReturn(userDto);
@@ -91,7 +91,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getAllUsersTest() throws Exception{
+    public void getAllUsersTest() throws Exception {
         when(userService.getAllUsers()).thenReturn(List.of(user));
         when(userMapper.toUserDtoList(List.of(user))).thenReturn(List.of(userDto));
         mvc.perform(get("/users")
@@ -104,7 +104,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void deleteUserTest() throws Exception{
+    public void deleteUserTest() throws Exception {
         mvc.perform(delete("/users/1")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)

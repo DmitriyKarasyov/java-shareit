@@ -9,8 +9,6 @@ import static org.mockito.Mockito.*;
 
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.booking.status.BookingStatus;
 import ru.practicum.shareit.exception.SameStatusException;
 import ru.practicum.shareit.exception.WrongBookingRightsException;

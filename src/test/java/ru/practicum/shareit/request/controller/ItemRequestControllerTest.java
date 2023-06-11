@@ -8,14 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.booking.dto.BookingCreateDto;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.booking.state.BookingState;
-import ru.practicum.shareit.booking.status.BookingStatus;
 import ru.practicum.shareit.common.RequestParser;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemCreatedOnRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestCreationDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
@@ -105,7 +98,7 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    public void getAllRequestsTest() throws Exception{
+    public void getAllRequestsTest() throws Exception {
         when(requestService.getAllRequests(2, RequestParser.makePageable(0, 1)))
                 .thenReturn(List.of(request));
 

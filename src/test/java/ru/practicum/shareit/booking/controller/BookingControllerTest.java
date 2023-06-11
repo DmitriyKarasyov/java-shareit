@@ -68,7 +68,7 @@ public class BookingControllerTest {
 
 
     @Test
-    public void addBookingTest() throws Exception{
+    public void addBookingTest() throws Exception {
         BookingCreateDto bookingCreateDto = BookingCreateDto.builder()
                 .itemId(1)
                 .start(booking.getStart())
@@ -91,7 +91,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void changeStatusTest() throws Exception{
+    public void changeStatusTest() throws Exception {
         booking.setStatus(BookingStatus.APPROVED);
         when(bookingService.changeStatus(2, 1, true)).thenReturn(booking);
         mvc.perform(patch("/bookings/1?approved=true")
