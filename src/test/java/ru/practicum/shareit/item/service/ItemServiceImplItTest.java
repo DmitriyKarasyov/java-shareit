@@ -6,11 +6,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.status.BookingStatus;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -26,7 +26,7 @@ import java.util.List;
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-public class ItemServiceImplTestIT {
+public class ItemServiceImplItTest {
     private final ItemService itemService;
     private final ItemRepository itemRepository;
     private final UserService userService;
@@ -36,7 +36,7 @@ public class ItemServiceImplTestIT {
 
 
     @Autowired
-    public ItemServiceImplTestIT(ItemService itemService, ItemRepository itemRepository,
+    public ItemServiceImplItTest(ItemService itemService, ItemRepository itemRepository,
                                  UserService userService, UserRepository userRepository,
                                  BookingService bookingService, BookingRepository bookingRepository) {
         this.itemService = itemService;
@@ -56,6 +56,45 @@ public class ItemServiceImplTestIT {
 
     @Test
     public void getAllUserItemsTest() throws InterruptedException {
+        List<Booking> addedBookings = addItemsWithBookings();
+        List<ItemWithBookingsDto> user1Items = itemService.getAllUserItems(
+                addedBookings.get(0).getItem().getOwner().getId(), null);
+
+        assertEquals(3, user1Items.size());
+        assertEquals(user1Items.get(0).getLastBooking().getId(), addedBookings.get(1).getId());
+        assertEquals(user1Items.get(0).getNextBooking().getId(), addedBookings.get(2).getId());
+        assertNull(user1Items.get(1).getLastBooking());
+        assertEquals(user1Items.get(1).getNextBooking().getId(), addedBookings.get(4).getId());
+
+        List<ItemWithBookingsDto> user2Items = itemService.getAllUserItems(
+                addedBookings.get(0).getBooker().getId(), null);
+        assertEquals(0, user2Items.size());
+    }
+
+    @Test
+    public void getItemWithBookingsTest() throws InterruptedException {
+        List<Booking> addedBookings = addItemsWithBookings();
+        ItemWithBookingsDto itemWithBookings = itemService.getItemWithBookings(addedBookings.get(0).getItem().getId(),
+                addedBookings.get(0).getItem().getOwner().getId());
+
+        assertNotNull(itemWithBookings);
+        assertEquals("item1Name", itemWithBookings.getName());
+        assertEquals(itemWithBookings.getLastBooking().getId(), addedBookings.get(1).getId());
+        assertEquals(itemWithBookings.getNextBooking().getId(), addedBookings.get(2).getId());
+
+        assertThrows(NotFoundException.class, () -> itemService.getItemWithBookings(
+                addedBookings.get(5).getItem().getId() + 2, addedBookings.get(5).getBooker().getId()));
+
+        ItemWithBookingsDto itemWithoutBookings = itemService.getItemWithBookings(
+                addedBookings.get(0).getItem().getId(), addedBookings.get(0).getBooker().getId());
+
+        assertNotNull(itemWithoutBookings);
+        assertEquals("item1Name", itemWithoutBookings.getName());
+        assertNull(itemWithoutBookings.getLastBooking());
+        assertNull(itemWithoutBookings.getNextBooking());
+    }
+
+    private List<Booking> addItemsWithBookings() throws InterruptedException {
         User user1 = userService.addUser(
                 User.builder()
                         .name("user1")
@@ -148,16 +187,6 @@ public class ItemServiceImplTestIT {
                         .status(BookingStatus.WAITING)
                         .build()
         );
-
-        List<ItemWithBookingsDto> user1Items = itemService.getAllUserItems(user1.getId(), null);
-
-        assertEquals(3, user1Items.size());
-        assertEquals(user1Items.get(0).getLastBooking(), BookingMapper.toBookingInItemDto(booking2));
-        assertEquals(user1Items.get(0).getNextBooking(), BookingMapper.toBookingInItemDto(booking3));
-        assertNull(user1Items.get(1).getLastBooking());
-        assertEquals(user1Items.get(1).getNextBooking(), BookingMapper.toBookingInItemDto(booking5));
-
-        List<ItemWithBookingsDto> user2Items = itemService.getAllUserItems(2, null);
-        assertEquals(0, user2Items.size());
+        return List.of(booking1, booking2, booking3, booking4, booking5, booking6);
     }
 }

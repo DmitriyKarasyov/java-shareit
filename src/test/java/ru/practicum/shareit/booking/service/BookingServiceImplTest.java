@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.status.BookingStatus;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.SameStatusException;
 import ru.practicum.shareit.exception.WrongBookingRightsException;
 import ru.practicum.shareit.exception.WrongBookingTimeException;
@@ -47,25 +48,42 @@ public class BookingServiceImplTest {
                 .name("testName")
                 .owner(user1)
                 .build();
-        Booking wrongTimeBooking = Booking.builder()
+        Booking wrongStartBooking = Booking.builder()
                 .start(LocalDateTime.now().minusDays(1L))
                 .end(LocalDateTime.now())
                 .booker(user2)
                 .item(item1)
                 .build();
+        Booking wrongEndBooking = Booking.builder()
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().minusDays(1))
+                .booker(user2)
+                .item(item1)
+                .build();
+        Booking noStartBooking = Booking.builder()
+                .end(LocalDateTime.now().plusDays(1))
+                .booker(user2)
+                .item(item1)
+                .build();
+        Booking noEndBooking = Booking.builder()
+                .start(LocalDateTime.now().plusDays(1))
+                .booker(user2)
+                .item(item1)
+                .build();
 
-        final WrongBookingTimeException exception1 = assertThrows(WrongBookingTimeException.class,
-                () -> service.addBooking(wrongTimeBooking));
+        assertThrows(WrongBookingTimeException.class, () -> service.addBooking(wrongStartBooking));
+        assertThrows(WrongBookingTimeException.class, () -> service.addBooking(wrongEndBooking));
+        assertThrows(WrongBookingTimeException.class, () -> service.addBooking(noStartBooking));
+        assertThrows(WrongBookingTimeException.class, () -> service.addBooking(noEndBooking));
 
         Booking ownerBookingFail = Booking.builder()
-                .start(LocalDateTime.now().plusDays(2L))
-                .end(LocalDateTime.now().plusDays(4L))
+                .start(LocalDateTime.now().plusDays(2))
+                .end(LocalDateTime.now().plusDays(4))
                 .item(item1)
                 .booker(user1)
                 .build();
 
-        final WrongBookingRightsException exception2 = assertThrows(WrongBookingRightsException.class,
-                () -> service.addBooking(ownerBookingFail));
+        assertThrows(WrongBookingRightsException.class, () -> service.addBooking(ownerBookingFail));
 
         Booking validBooking = Booking.builder()
                 .start(LocalDateTime.now().plusDays(2L))
@@ -105,14 +123,43 @@ public class BookingServiceImplTest {
         Mockito.when(bookingRepository.existsById(1)).thenReturn(true);
         Mockito.when(bookingRepository.getReferenceById(2)).thenReturn(approvedBooking2);
         Mockito.when(bookingRepository.existsById(2)).thenReturn(true);
+        Mockito.when(bookingRepository.existsById(3)).thenReturn(false);
 
-        final WrongBookingRightsException exception1 = assertThrows(WrongBookingRightsException.class,
+        assertThrows(NotFoundException.class, () -> service.changeStatus(1, 3, true));
+        assertThrows(WrongBookingRightsException.class,
                 () -> service.changeStatus(2, 1, true));
 
-        final SameStatusException exception2 = assertThrows(SameStatusException.class,
+        assertThrows(SameStatusException.class,
                 () -> service.changeStatus(1, 2, true));
 
         assertEquals(approvedBooking1, service.changeStatus(1, 1, true));
+    }
+
+    @Test
+    public void getBookingByIdTest() {
+        User booker = User.builder()
+                .id(1)
+                .build();
+        User owner = User.builder()
+                .id(2)
+                .build();
+        Item item = Item.builder()
+                .id(1)
+                .owner(owner)
+                .build();
+        Booking booking = Booking.builder()
+                .id(1)
+                .item(item)
+                .booker(booker)
+                .build();
+        when(bookingRepository.existsById(1)).thenReturn(true);
+        when(bookingRepository.existsById(2)).thenReturn(false);
+        when(bookingRepository.getReferenceById(1)).thenReturn(booking);
+
+        assertEquals(booking, service.getBookingById(1, 1));
+        assertEquals(booking, service.getBookingById(1, 2));
+        assertThrows(WrongBookingRightsException.class, () -> service.getBookingById(1, 3));
+        assertThrows(NotFoundException.class, () -> service.getBookingById(2, 1));
     }
 
 }

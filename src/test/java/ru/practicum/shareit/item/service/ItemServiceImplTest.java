@@ -21,7 +21,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 
 public class ItemServiceImplTest {
-    private static ItemService service;
+    private static ItemServiceImpl service;
     private static ItemRepository itemRepository;
     private static ItemMapper itemMapper;
     private static BookingRepository bookingRepository;
@@ -53,6 +53,7 @@ public class ItemServiceImplTest {
         Item updateItem = Item.builder()
                 .id(1)
                 .name("updateName")
+                .description("updateDescription")
                 .available(true)
                 .owner(user1)
                 .build();
@@ -62,14 +63,22 @@ public class ItemServiceImplTest {
                 .available(true)
                 .owner(user2)
                 .build();
+        Item updateItemNoFields = Item.builder()
+                .id(1)
+                .owner(user1)
+                .build();
         Mockito.when(itemRepository.getReferenceById(1)).thenReturn(item);
         Mockito.when(itemRepository.save(any())).thenAnswer(invocationOnMock ->  invocationOnMock.getArguments()[0]);
 
+        assertEquals("name", service.updateItem(updateItemNoFields).getName());
+        assertEquals(false, service.updateItem(updateItemNoFields).getAvailable());
+        assertEquals("description", service.updateItem(updateItemNoFields).getDescription());
+
         assertEquals("updateName", service.updateItem(updateItem).getName());
         assertEquals(true, service.updateItem(updateItem).getAvailable());
-        assertEquals("description", service.updateItem(updateItem).getDescription());
+        assertEquals("updateDescription", service.updateItem(updateItem).getDescription());
 
-        final WrongUserException exception = assertThrows(WrongUserException.class,
+        assertThrows(WrongUserException.class,
                 () -> service.updateItem(updateItemWrongOwner));
     }
 

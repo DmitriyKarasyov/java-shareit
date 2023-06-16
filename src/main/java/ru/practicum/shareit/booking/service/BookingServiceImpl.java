@@ -129,9 +129,10 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public void checkTime(Booking booking) {
+        LocalDateTime now = LocalDateTime.now();
          if (!(booking.getStart() != null &&
                  booking.getEnd() != null &&
-                 booking.getStart().isAfter(LocalDateTime.now()) &&
+                 booking.getStart().isAfter(now) &&
                  booking.getEnd().isAfter(booking.getStart()))) {
              throw new WrongBookingTimeException();
          }

@@ -22,7 +22,7 @@ import java.util.List;
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-public class RequestServiceImplTestIT {
+public class RequestServiceImplItTest {
     private final RequestService requestService;
     private final RequestRepository requestRepository;
     private final UserService userService;
@@ -31,7 +31,7 @@ public class RequestServiceImplTestIT {
     private final ItemRepository itemRepository;
 
     @Autowired
-    public RequestServiceImplTestIT(RequestService requestService, RequestRepository requestRepository,
+    public RequestServiceImplItTest(RequestService requestService, RequestRepository requestRepository,
                                     UserService userService, UserRepository userRepository,
                                     ItemService itemService, ItemRepository itemRepository) {
         this.requestService = requestService;

@@ -13,12 +13,12 @@ import ru.practicum.shareit.user.repository.UserRepository;
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-public class UserServiceImplTestIT {
+public class UserServiceImplItTest {
     private final UserService service;
     private final UserRepository userRepository;
 
     @Autowired
-    public UserServiceImplTestIT(UserService service, UserRepository userRepository) {
+    public UserServiceImplItTest(UserService service, UserRepository userRepository) {
         this.service = service;
         this.userRepository = userRepository;
     }

@@ -73,12 +73,4 @@ public class ItemMapper {
                 .comments(commentMapper.toCommentDto(commentRepository.findByItem_IdOrderByCreatedDesc(item.getId())))
                 .build();
     }
-
-    public List<ItemWithBookingsDto> toItemWithBookingsDtoList(List<Item> itemList) {
-        List<ItemWithBookingsDto> itemsWithBookingsDto = new ArrayList<>();
-        for (Item item : itemList) {
-            itemsWithBookingsDto.add(toItemWithBookingsDto(item));
-        }
-        return itemsWithBookingsDto;
-    }
 }
