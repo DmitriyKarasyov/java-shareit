@@ -41,7 +41,7 @@ public class UserServiceImplItTest {
         assertEquals(savedUser, service.getUserById(1));
 
         User updateUser = User.builder()
-                .id(1)
+                .id(savedUser.getId())
                 .name("updateName")
                 .build();
         service.updateUser(updateUser);
