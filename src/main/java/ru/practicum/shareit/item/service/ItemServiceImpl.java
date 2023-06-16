@@ -135,7 +135,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public void checkCommentText(Comment comment) {
-        if (comment.getText().isBlank() || comment.getText().isEmpty()) {
+        if (comment.getText() == null || comment.getText().isBlank() || comment.getText().isEmpty()) {
             throw new CommentException("Text cannot be empty");
         }
     }

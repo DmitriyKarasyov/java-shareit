@@ -2,14 +2,18 @@ package ru.practicum.shareit.item.service;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.mockito.Mockito;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exception.CommentException;
 import ru.practicum.shareit.exception.WrongUserException;
 import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -25,13 +29,14 @@ public class ItemServiceImplTest {
     private static ItemRepository itemRepository;
     private static ItemMapper itemMapper;
     private static BookingRepository bookingRepository;
+    private static CommentRepository commentRepository;
 
     @BeforeAll
     public static void beforeAll() {
         itemRepository = Mockito.mock(ItemRepository.class);
         itemMapper = Mockito.mock(ItemMapper.class);
         bookingRepository = Mockito.mock(BookingRepository.class);
-        CommentRepository commentRepository = Mockito.mock(CommentRepository.class);
+        commentRepository = Mockito.mock(CommentRepository.class);
         service = new ItemServiceImpl(itemRepository, itemMapper, bookingRepository, commentRepository);
     }
 
@@ -68,7 +73,7 @@ public class ItemServiceImplTest {
                 .owner(user1)
                 .build();
         Mockito.when(itemRepository.getReferenceById(1)).thenReturn(item);
-        Mockito.when(itemRepository.save(any())).thenAnswer(invocationOnMock ->  invocationOnMock.getArguments()[0]);
+        Mockito.when(itemRepository.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
 
         assertEquals("name", service.updateItem(updateItemNoFields).getName());
         assertEquals(false, service.updateItem(updateItemNoFields).getAvailable());
@@ -146,5 +151,60 @@ public class ItemServiceImplTest {
         assertNull(itemsWithBookings.get(1).getNextBooking());
         assertNull(itemsWithBookings.get(2).getLastBooking());
         assertNull(itemsWithBookings.get(2).getNextBooking());
+    }
+
+    @Test
+    public void addCommentTest() {
+        User user = User.builder()
+                .id(1)
+                .name("userName")
+                .email("user@gmail.com")
+                .build();
+        Item item = Item.builder()
+                .id(1)
+                .name("itemName")
+                .description("itemDescription")
+                .build();
+        Comment comment = Comment.builder()
+                .id(1)
+                .text("commentText")
+                .author(user)
+                .item(item)
+                .build();
+        Mockito.when(bookingRepository.existsByBooker_IdAndItem_IdAndStartBefore(any(), any(), any()))
+                .thenReturn(false);
+
+        assertThrows(CommentException.class, () -> service.addComment(comment));
+
+        Mockito.when(bookingRepository.existsByBooker_IdAndItem_IdAndStartBefore(any(), any(), any()))
+                .thenReturn(true);
+        Mockito.when(commentRepository.save(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+
+        Comment addedComment = service.addComment(comment);
+
+        assertNotNull(addedComment);
+        assertEquals(comment.getText(), addedComment.getText());
+
+        Comment noTextComment = Comment.builder()
+                .id(2)
+                .author(user)
+                .item(item)
+                .build();
+        Comment emptyTextComment = Comment.builder()
+                .id(2)
+                .text("")
+                .author(user)
+                .item(item)
+                .build();
+        Comment blankTextComment = Comment.builder()
+                .id(2)
+                .text(" ")
+                .author(user)
+                .item(item)
+                .build();
+
+        assertThrows(CommentException.class, () -> service.addComment(noTextComment));
+        assertThrows(CommentException.class, () -> service.addComment(emptyTextComment));
+        assertThrows(CommentException.class, () -> service.addComment(blankTextComment));
     }
 }
