@@ -38,7 +38,7 @@ public class UserServiceImplItTest {
         assertEquals("name", savedUser.getName());
         assertEquals("email@gmail.com", savedUser.getEmail());
 
-        assertEquals(savedUser, service.getUserById(1));
+        assertEquals(savedUser, service.getUserById(savedUser.getId()));
 
         User updateUser = User.builder()
                 .id(savedUser.getId())
