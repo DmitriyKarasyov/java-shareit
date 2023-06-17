@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
@@ -16,6 +17,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Transactional
@@ -51,41 +53,79 @@ public class RequestServiceImplItTest {
 
     @Test
     public void getAllUserRequestsTest() {
+        List<ItemRequest> requests = addRequests();
+        List<ItemRequest> savedRequests = requestService.getAllUserRequests(requests.get(0).getRequestor().getId());
+
+        assertEquals(2, savedRequests.size());
+        assertEquals(2, savedRequests.get(0).getItems().size());
+        assertEquals(0, savedRequests.get(1).getItems().size());
+        assertEquals(savedRequests.get(0).getItems(), (requests.get(0).getItems()));
+    }
+
+    @Test
+    public void getAllRequestsTest() {
+        List<ItemRequest> requests = addRequests();
+        List<ItemRequest> queriedByUser1 = requestService.getAllRequests(requests.get(0).getRequestor().getId(),
+                null);
+
+        assertNotNull(queriedByUser1);
+        assertEquals(0, queriedByUser1.size());
+
+        List<ItemRequest> queriedByUser2 =
+                requestService.getAllRequests(requests.get(0).getItems().get(0).getOwnerId(), null);
+
+        assertNotNull(queriedByUser2);
+        assertEquals(2, queriedByUser2.size());
+    }
+
+    @Test
+    public void getRequestByIdTest() {
+        List<ItemRequest> requests = addRequests();
+
+        assertThrows(NotFoundException.class,
+                () -> requestService.getRequestById(requests.get(0).getRequestor().getId(),
+                        requests.get(requests.size() - 1).getId() + 1));
+        assertThrows(NotFoundException.class,
+                () -> requestService.getRequestById(requests.get(0).getRequestor().getId() + 3,
+                        requests.get(0).getId()));
+
+        assertEquals(requests.get(0), requestService.getRequestById(requests.get(0).getRequestor().getId(),
+                requests.get(0).getId()));
+        assertEquals(requests.get(1), requestService.getRequestById(requests.get(0).getRequestor().getId(),
+                requests.get(1).getId()));
+    }
+
+    public List<ItemRequest> addRequests() {
         User user1 = userService.addUser(
                 User.builder()
                         .name("name1")
                         .email("email1@gmaol.com")
                         .build()
         );
-
         User user2 = userService.addUser(
                 User.builder()
                         .name("name2")
                         .email("email2@gmail.com")
                         .build()
         );
-
         User user3 = userService.addUser(
                 User.builder()
                         .name("name3")
                         .email("email3@gmail.com")
                         .build()
         );
-
         ItemRequest request1 = requestService.addItemRequest(
                 ItemRequest.builder()
                         .description("request1Description")
                         .requestor(user1)
                         .build()
         );
-
         ItemRequest request2 = requestService.addItemRequest(
                 ItemRequest.builder()
                         .description("request2Description")
                         .requestor(user1)
                         .build()
         );
-
         Item item1 = itemService.addItem(
                 Item.builder()
                         .name("item1Name")
@@ -95,7 +135,6 @@ public class RequestServiceImplItTest {
                         .request(request1)
                         .build()
         );
-
         Item item2 = itemService.addItem(
                 Item.builder()
                         .name("item2Name")
@@ -105,13 +144,7 @@ public class RequestServiceImplItTest {
                         .request(request1)
                         .build()
         );
-
-        List<ItemRequest> requests = requestService.getAllUserRequests(user1.getId());
-
-        assertEquals(2, requests.size());
-        assertEquals(2, requests.get(0).getItems().size());
-        assertEquals(0, requests.get(1).getItems().size());
-        assertEquals(requests.get(0).getItems(),
-                ItemRequestMapper.toItemCreatedOnRequestDto(List.of(item1, item2)));
+        request1.setItems(new ArrayList<>(ItemRequestMapper.toItemCreatedOnRequestDto(List.of(item1, item2))));
+        return List.of(request1, request2);
     }
 }

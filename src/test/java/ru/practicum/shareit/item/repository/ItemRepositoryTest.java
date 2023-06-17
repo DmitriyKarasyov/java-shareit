@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.repository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import ru.practicum.shareit.common.RequestParser;
 import ru.practicum.shareit.item.model.Item;
 
@@ -15,10 +14,7 @@ import java.util.List;
 public class ItemRepositoryTest {
 
     @Autowired
-    TestEntityManager entityManager;
-
-    @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Test
     public void searchTest() {

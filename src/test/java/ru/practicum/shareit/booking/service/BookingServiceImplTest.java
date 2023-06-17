@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 public class BookingServiceImplTest {
 
     private static BookingService service;
-    private static BookingRepository bookingRepository;
+    private static  BookingRepository bookingRepository;
 
     @BeforeAll
     public static void beforeAll() {
