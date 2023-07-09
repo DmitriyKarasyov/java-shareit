@@ -12,7 +12,7 @@ public class ExceptionController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> IllegalArgumentHandler(IllegalArgumentException e) {
+    public Map<String, String> illegalArgumentHandler(IllegalArgumentException e) {
         return Map.of("error", e.getMessage());
     }
 }
