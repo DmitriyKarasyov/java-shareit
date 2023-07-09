@@ -6,13 +6,13 @@ import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookItemRequestDto {
+public class BookingCreaionDto {
 	private long itemId;
 	@FutureOrPresent
 	private LocalDateTime start;

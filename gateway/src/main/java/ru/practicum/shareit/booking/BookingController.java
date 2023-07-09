@@ -7,12 +7,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookItemRequestDto;
+import ru.practicum.shareit.booking.dto.BookingCreaionDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping(path = "/bookings")
@@ -47,9 +48,10 @@ public class BookingController {
 
 	@PostMapping
 	public ResponseEntity<Object> bookItem(@RequestHeader(HEADER) Integer userId,
-			@RequestBody @Valid BookItemRequestDto requestDto) {
-		log.info("Creating booking {}, userId={}", requestDto, userId);
-		return bookingClient.bookItem(userId, requestDto);
+			@RequestBody @Valid BookingCreaionDto bookingCreaionDto) {
+		log.info("Creating booking {}, userId={}", bookingCreaionDto, userId);
+		checkTime(bookingCreaionDto);
+		return bookingClient.bookItem(userId, bookingCreaionDto);
 	}
 
 	@PatchMapping("/{bookingId}")
@@ -65,5 +67,15 @@ public class BookingController {
 			@PathVariable Integer bookingId) {
 		log.info("Get booking {}, userId={}", bookingId, userId);
 		return bookingClient.getBooking(userId, bookingId);
+	}
+
+	public void checkTime(BookingCreaionDto bookingCreaionDto) {
+		LocalDateTime now = LocalDateTime.now();
+		if (!(bookingCreaionDto.getStart() != null &&
+				bookingCreaionDto.getEnd() != null &&
+				bookingCreaionDto.getStart().isAfter(now) &&
+				bookingCreaionDto.getEnd().isAfter(bookingCreaionDto.getStart()))) {
+			throw new IllegalArgumentException("wrong booking time");
+		}
 	}
 }
