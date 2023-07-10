@@ -42,7 +42,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public Booking addBooking(Booking booking) {
-        checkTime(booking);
         checkOwner(booking, booking.getBooker().getId(), false);
         return bookingRepository.save(booking);
     }
